@@ -43,6 +43,17 @@ impl<'a> TryFrom<&'a mut [AccountView]> for TakeAccount<'a> {
         AssociatedTokenAccount::check(taker_ata_b, taker, mint_b, token_program)?;
         AssociatedTokenAccount::check(vault, escrow, mint_a, token_program)?;
 
+        {
+            let data = escrow.try_borrow()?;
+            let escrow_state = Escrow::load(&data)?;
+            if escrow_state.mint_a.ne(mint_a.address()) {
+                return Err(ProgramError::InvalidAccountData);
+            }
+            if escrow_state.mint_b.ne(mint_b.address()) {
+                return Err(ProgramError::InvalidAccountData);
+            }
+        }
+
         Ok(Self {
             taker,
             maker,

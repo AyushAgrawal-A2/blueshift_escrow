@@ -59,7 +59,7 @@ impl<'a> TryFrom<&'a [u8]> for MakeInstructionData {
         let seed = u64::from_le_bytes(data[0..8].try_into().unwrap());
         let receive = u64::from_le_bytes(data[8..16].try_into().unwrap());
         let amount = u64::from_le_bytes(data[16..24].try_into().unwrap());
-        if amount == 0 {
+        if amount == 0 || receive == 0 {
             return Err(ProgramError::InvalidInstructionData);
         }
 

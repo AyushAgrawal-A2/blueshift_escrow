@@ -38,6 +38,14 @@ impl<'a> TryFrom<&'a mut [AccountView]> for RefundAccounts<'a> {
         AssociatedTokenAccount::check(maker_ata_a, maker, mint_a, token_program)?;
         AssociatedTokenAccount::check(vault, escrow, mint_a, token_program)?;
 
+        {
+            let data = escrow.try_borrow()?;
+            let escrow_state = Escrow::load(&data)?;
+            if escrow_state.mint_a.ne(mint_a.address()) {
+                return Err(ProgramError::InvalidAccountData);
+            }
+        }
+
         Ok(Self {
             maker,
             escrow,
